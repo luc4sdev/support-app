@@ -1,7 +1,7 @@
 'use client'
 
 import { Logo } from "./Logo";
-import { User, Router, Menu } from 'lucide-react'
+import { User, Menu } from 'lucide-react'
 import { NavItem } from "./NavItem";
 import * as Collapsible from '@radix-ui/react-collapsible'
 import { Button } from "../Button";

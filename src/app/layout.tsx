@@ -11,7 +11,7 @@ import 'react-toastify/dist/ReactToastify.css'
 const inter = Poppins({ subsets: ["latin"], weight: ["300", "400", "500", "600", "700"] });
 
 export const metadata: Metadata = {
-  title: "Routers App",
+  title: "Support App",
 };
 
 export default function RootLayout({

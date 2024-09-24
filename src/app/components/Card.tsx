@@ -1,25 +1,20 @@
 'use client'
 
-import { User } from "lucide-react";
 import { Client } from "@/domain/entities/client";
-import { Router } from "@/domain/entities/router";
-import { RouterDataDialog } from "../routers/components/RouterDataDialog";
 import { ClientDataDialog } from "../clients/components/ClientDataDialog";
 import { ElementType } from "react";
 
 interface CardProps {
     title: string
     client?: Client
-    router?: Router
     active: boolean
     index: number
     icon: ElementType
     setOpenCreateDialog: (openDialog: boolean) => void
     setClientToBeEdited?: (client: Client | null) => void
-    setRouterToBeEdited?: (router: Router | null) => void
 }
 
-export function Card({ title, client, router, active, index, icon: Icon, setOpenCreateDialog, setClientToBeEdited, setRouterToBeEdited }: CardProps) {
+export function Card({ title, client, active, index, icon: Icon, setOpenCreateDialog, setClientToBeEdited }: CardProps) {
 
     return (
         <>
@@ -33,13 +28,6 @@ export function Card({ title, client, router, active, index, icon: Icon, setOpen
                     <>
                         <p className="truncate">{client.name}</p>
                         <ClientDataDialog client={client} setOpenCreateClientDialog={setOpenCreateDialog} setClientToBeEdited={setClientToBeEdited} />
-                    </>
-                )}
-
-                {(router && setRouterToBeEdited) && (
-                    <>
-                        <p className="truncate">{router.brand}</p>
-                        <RouterDataDialog router={router} setOpenCreateRouterDialog={setOpenCreateDialog} setRouterToBeEdited={setRouterToBeEdited} />
                     </>
                 )}
             </div>

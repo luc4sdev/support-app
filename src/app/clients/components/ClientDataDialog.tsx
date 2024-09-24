@@ -1,5 +1,5 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import { Pencil, RouteOff, Router as RouterIcon, Trash2, UserSearch, XIcon } from 'lucide-react';
+import { Pencil, Trash2, UserSearch, XIcon } from 'lucide-react';
 import { Button } from '@/app/components/Button';
 import { useEffect, useState } from 'react';
 import { Client } from '@/domain/entities/client';
@@ -10,8 +10,6 @@ import { Address } from '@/domain/entities/address';
 import { useDeleteClient } from '@/hooks/client/useDeleteClient';
 import { useQueryClient } from '@tanstack/react-query';
 import { toastMessage } from '@/utils/helpers/toast-message';
-import { useGetRouter } from '@/hooks/router/useGetRouter';
-import { Router } from '@/domain/entities/router';
 
 interface ClientDataDialogProps {
     client: Client
@@ -25,10 +23,8 @@ export function ClientDataDialog({ client, setOpenCreateClientDialog, setClientT
 
     const [openDialog, setOpenDialog] = useState(false)
     const [address, setAddress] = useState<Address>()
-    const [router, setRouter] = useState<Router>()
 
     const { data: addressData } = useGetAddress({ addressId: client.addressId })
-    const { data: routerData } = useGetRouter({ routerId: client.routerId! })
 
     const { mutate: mutateDeleteClient, isError: isErrorDeleteClient, error: errorDeleteClient, isPending } = useDeleteClient()
     const queryCLient = useQueryClient()
@@ -37,9 +33,6 @@ export function ClientDataDialog({ client, setOpenCreateClientDialog, setClientT
         return !(value instanceof Error);
     }
 
-    function isNotErrorRouter(value: any): value is Router {
-        return !(value instanceof Error);
-    }
 
     function handleOpenCreateClientDialog() {
         setOpenCreateClientDialog(true)
@@ -77,11 +70,6 @@ export function ClientDataDialog({ client, setOpenCreateClientDialog, setClientT
         }
     }, [addressData]);
 
-    useEffect(() => {
-        if (routerData !== undefined && isNotErrorRouter(routerData)) {
-            setRouter(routerData);
-        }
-    }, [routerData]);
 
     return (
 
@@ -118,23 +106,6 @@ export function ClientDataDialog({ client, setOpenCreateClientDialog, setClientT
                                     <p>Bairro: {address?.neighborhood}</p>
                                     <p>Cidade: {address?.city}</p>
                                 </div>
-
-                                {(router && router.deleted === false) ? (
-                                    <div className='col-span-2 lg:col-span-1 flex flex-col gap-2 py-8'>
-                                        <p className='flex gap-2 items-center'>
-                                            <RouterIcon className='w-4 h-4' />Roteador :
-                                        </p>
-                                        <p>Marca: {router.brand}</p>
-                                        <p>Modelo: {router.model}</p>
-                                        <p>Endereço IP: {router.ipAddress}</p>
-                                        <p>Endereço IPV6: {router.ipv6Address}</p>
-                                    </div>
-                                ) :
-                                    (
-                                        <div className='col-span-2 lg:col-span-1 flex justify-center items-center'>
-                                            <RouteOff className='w-20 h-20' />
-                                        </div>
-                                    )}
                             </div>
                         </div>
                     </div>
