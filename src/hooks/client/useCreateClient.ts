@@ -4,14 +4,12 @@ import { useMutation } from '@tanstack/react-query'
 
 type CreateClientProps = CreateClientUsecase.Params
 
-export async function createClient({ name, type, document, birthDate, address }: CreateClientProps) {
+export async function createClient({ name, email, phone }: CreateClientProps) {
 
     const response = await CreateClientService.instance.perform({
         name,
-        type,
-        document,
-        birthDate,
-        address
+        email,
+        phone
     })
     if (response instanceof Error) throw response
 

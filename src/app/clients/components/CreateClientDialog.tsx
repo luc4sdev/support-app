@@ -10,11 +10,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import { toastMessage } from '@/utils/helpers/toast-message';
 import { useUpdateClient } from '@/hooks/client/useUpdateClient';
 import { Client } from '@/domain/entities/client';
-import { useGetAddress } from '@/hooks/address/useGetAddress';
 import { useEffect, useState } from 'react';
-import { Address } from '@/domain/entities/address';
 import InputMask from 'react-input-mask'
-import { dynamicMask } from '@/utils/helpers/dynamic-document-mask';
 
 interface CreateClientDialogProps {
     openClientDialog: boolean
@@ -23,28 +20,18 @@ interface CreateClientDialogProps {
     setClientToBeEdited: (client: Client | null) => void
 }
 
-const AddressSchema = z.object({
-    street: z.string().min(1, "Insira a rua"),
-    number: z.string().min(1, "Insira o número"),
-    cep: z.string().min(1, "Insira o cep"),
-    neighborhood: z.string().min(1, "Insira o bairro"),
-    city: z.string().min(1, "Insira a cidade"),
-});
-
 const createClientSchema = z.object({
     name: z.string().min(1, "Insira o nome"),
-    document: z.string().min(14, "Insira o documento").max(18, 'O documento deve ser válido'),
-    birthDate: z.string().min(1, "Insira a data de nascimemto"),
-    address: AddressSchema
+    email: z.string().min(1, "Insira o email").email("Insira um email válido"),
+    phone: z.string().min(14, "Insira o telefone").max(18, 'O telefone deve ser válido'),
 })
 
 type createClientSchema = z.infer<typeof createClientSchema>
 
 export function CreateClientDialog({ openClientDialog, clientToBeEdited, setOpenCreateClientDialog, setClientToBeEdited }: CreateClientDialogProps) {
 
-    const [documentValue, setDocumentValue] = useState('')
+    const [phoneValue, setPhoneValue] = useState('')
 
-    const { data: addressData } = useGetAddress({ addressId: clientToBeEdited ? clientToBeEdited.addressId : '' })
     const { mutate: mutateCreateClient, isPending: isPendingCreateClient } = useCreateClient()
     const { mutate: mutateUpdateClient, isPending: isPendingUpdateClient } = useUpdateClient()
 
@@ -52,41 +39,20 @@ export function CreateClientDialog({ openClientDialog, clientToBeEdited, setOpen
         resolver: zodResolver(createClientSchema),
         defaultValues: {
             name: '',
-            document: '',
-            birthDate: '',
-            address: {
-                street: '',
-                cep: '',
-                number: '',
-                neighborhood: '',
-                city: ''
-            }
-
+            email: '',
+            phone: ''
         }
 
     })
     const queryCLient = useQueryClient()
 
-    function isNotError(value: any): value is Address {
-        return !(value instanceof Error);
-    }
-
     async function createClient(data: createClientSchema) {
 
-        const type = data.document.length <= 14 ? 'FISICA' : 'JURIDICA'
         try {
             mutateCreateClient({
                 name: data.name,
-                type,
-                document: data.document,
-                birthDate: data.birthDate,
-                address: {
-                    street: data.address.street,
-                    number: data.address.number,
-                    cep: data.address.cep,
-                    neighborhood: data.address.neighborhood,
-                    city: data.address.city
-                }
+                email: data.email,
+                phone: data.phone
             }, {
                 onSuccess: () => {
                     queryCLient.invalidateQueries({
@@ -116,22 +82,13 @@ export function CreateClientDialog({ openClientDialog, clientToBeEdited, setOpen
 
 
     async function updateClient(data: createClientSchema) {
-        const type = data.document.length <= 14 ? 'FISICA' : 'JURIDICA'
 
         try {
             mutateUpdateClient({
                 id: clientToBeEdited ? clientToBeEdited.id : '',
                 name: data.name,
-                type,
-                document: data.document,
-                birthDate: data.birthDate,
-                address: {
-                    street: data.address.street,
-                    number: data.address.number,
-                    cep: data.address.cep,
-                    neighborhood: data.address.neighborhood,
-                    city: data.address.city
-                }
+                email: data.email,
+                phone: data.phone
             }, {
                 onSuccess: () => {
                     queryCLient.invalidateQueries({
@@ -167,27 +124,8 @@ export function CreateClientDialog({ openClientDialog, clientToBeEdited, setOpen
     }
 
     useEffect(() => {
-        if (clientToBeEdited) {
-
-            if (addressData !== undefined && isNotError(addressData)) {
-                setValue("name", clientToBeEdited.name)
-                setValue("document", clientToBeEdited.document)
-                setValue("birthDate", clientToBeEdited.birthDate)
-                setValue("address.street", addressData.street)
-                setValue("address.number", addressData.number)
-                setValue("address.cep", addressData.cep)
-                setValue("address.neighborhood", addressData.neighborhood)
-                setValue("address.city", addressData.city)
-
-                setDocumentValue(clientToBeEdited.document)
-            }
-        }
-    }, [addressData])
-
-
-    useEffect(() => {
-        setValue('document', documentValue)
-    }, [documentValue])
+        setValue('phone', phoneValue)
+    }, [phoneValue])
 
 
     return (
@@ -221,102 +159,35 @@ export function CreateClientDialog({ openClientDialog, clientToBeEdited, setOpen
                             </div>
                         </fieldset>
 
+
                         <fieldset className="mb-[15px] flex flex-col lg:flex-row lg:justify-between items-center gap-10">
-                            <label className="text-sm" htmlFor="document">
-                                CPF/CNPJ
+                            <label className="text-sm" htmlFor="email">
+                                Email
+                            </label>
+                            <div className='flex flex-col justify-center items-start gap-1'>
+                                <InputRoot>
+                                    <InputControl id="email" type="email" placeholder='johndoe@email.com' {...register("email")} />
+                                </InputRoot>
+                                <p className="text-xs text-red-500 font-semibold">{errors.email?.message}</p>
+                            </div>
+                        </fieldset>
+
+                        <fieldset className="mb-[15px] flex flex-col lg:flex-row lg:justify-between items-center gap-10">
+                            <label className="text-sm" htmlFor="phone">
+                                Telefone
                             </label>
                             <div className='flex flex-col justify-center items-start gap-1'>
                                 <InputRoot>
                                     <InputMask
                                         className='flex-1 border-0 bg-transparent p-0 text-zinc-900 placeholder-zinc-600 outline-none dark:placeholder-zinc-400 dark:text-zinc-100'
-                                        mask={dynamicMask(documentValue)}
+                                        mask="(99) 99999-9999"
                                         maskChar=""
-                                        value={documentValue}
-                                        onChange={(e) => setDocumentValue(e.target.value)}
-                                        placeholder="CPF ou CNPJ"
+                                        value={phoneValue}
+                                        onChange={(e) => setPhoneValue(e.target.value)}
+                                        placeholder="(99) 99999-9999"
                                     />
                                 </InputRoot>
-                                <p className="text-xs text-red-500 font-semibold">{errors.document?.message}</p>
-                            </div>
-                        </fieldset>
-
-
-                        <fieldset className="mb-[15px] flex flex-col lg:flex-row lg:justify-between items-center gap-10">
-                            <label className="text-sm" htmlFor="birthDate">
-                                Data de nascimento
-                            </label>
-                            <div className='flex flex-col justify-center items-start gap-1'>
-                                <InputRoot>
-                                    <InputControl style={{ background: 'none', width: '100%' }} id="birthDate" type="date"  {...register("birthDate")} />
-                                </InputRoot>
-                                <p className="text-xs text-red-500 font-semibold">{errors.birthDate?.message}</p>
-                            </div>
-                        </fieldset>
-
-                        <fieldset className="mb-[15px] flex flex-col lg:flex-row lg:justify-between items-center gap-10">
-                            <label className="text-sm" htmlFor="street">
-                                Rua
-                            </label>
-                            <div className='flex flex-col justify-center items-start gap-1'>
-                                <InputRoot>
-                                    <InputControl id="street" type="text" placeholder='Av Rio Branco' {...register("address.street")} />
-                                </InputRoot>
-                                <p className="text-xs text-red-500 font-semibold">{errors.address?.street?.message}</p>
-                            </div>
-                        </fieldset>
-
-                        <fieldset className="mb-[15px] flex flex-col lg:flex-row lg:justify-between items-center gap-10">
-                            <label className="text-sm" htmlFor="number">
-                                Número
-                            </label>
-                            <div className='flex flex-col justify-center items-start gap-1'>
-                                <InputRoot>
-                                    <InputControl id="number" type="number" placeholder='52' {...register("address.number")} />
-                                </InputRoot>
-                                <p className="text-xs text-red-500 font-semibold">{errors.address?.number?.message}</p>
-                            </div>
-                        </fieldset>
-
-                        <fieldset className="mb-[15px] flex flex-col lg:flex-row lg:justify-between items-center gap-10">
-                            <label className="text-sm" htmlFor="cep">
-                                CEP
-                            </label>
-                            <div className='flex flex-col justify-center items-start gap-1'>
-                                <InputRoot>
-                                    <InputMask
-                                        id='cep'
-                                        className='flex-1 border-0 bg-transparent p-0 text-zinc-900 placeholder-zinc-600 outline-none dark:placeholder-zinc-400 dark:text-zinc-100'
-                                        {...register('address.cep')}
-                                        mask="99999-999"
-                                        maskChar=""
-                                        placeholder="CEP"
-                                    />
-                                </InputRoot>
-                                <p className="text-xs text-red-500 font-semibold">{errors.address?.cep?.message}</p>
-                            </div>
-                        </fieldset>
-
-                        <fieldset className="mb-[15px] flex flex-col lg:flex-row lg:justify-between items-center gap-10">
-                            <label className="text-sm" htmlFor="neighborhood">
-                                Bairro
-                            </label>
-                            <div className='flex flex-col justify-center items-start gap-1'>
-                                <InputRoot>
-                                    <InputControl id="neighborhood" type="text" placeholder='Vila João Vaz' {...register("address.neighborhood")} />
-                                </InputRoot>
-                                <p className="text-xs text-red-500 font-semibold">{errors.address?.neighborhood?.message}</p>
-                            </div>
-                        </fieldset>
-
-                        <fieldset className="mb-[15px] flex flex-col lg:flex-row lg:justify-between items-center gap-10">
-                            <label className="text-sm" htmlFor="city">
-                                Cidade
-                            </label>
-                            <div className='flex flex-col justify-center items-start gap-1'>
-                                <InputRoot>
-                                    <InputControl id="city" type="text" placeholder='Goiânia' {...register("address.city")} />
-                                </InputRoot>
-                                <p className="text-xs text-red-500 font-semibold">{errors.address?.city?.message}</p>
+                                <p className="text-xs text-red-500 font-semibold">{errors.phone?.message}</p>
                             </div>
                         </fieldset>
                     </div>

@@ -4,15 +4,13 @@ import { useMutation } from '@tanstack/react-query'
 
 type UpdateClientProps = UpdateClientUseCase.Params
 
-export async function updateClient({ id, name, type, document, birthDate, address }: UpdateClientProps) {
+export async function updateClient({ id, name, email, phone }: UpdateClientProps) {
 
     const response = await UpdateClientService.instance.perform({
         id,
         name,
-        type,
-        document,
-        birthDate,
-        address
+        email,
+        phone
     })
     if (response instanceof Error) throw response
 

@@ -7,6 +7,7 @@ import { CreateClientDialog } from "./components/CreateClientDialog";
 import { Card } from "../components/Card";
 import { SkeletonCard } from "../components/SkeletonCard";
 import { User } from "lucide-react";
+import { ClientTable } from "./components/ClientTable";
 
 export default function Clients() {
 
@@ -38,27 +39,13 @@ export default function Clients() {
                     />
                 </div>
 
-                <div className="grid md:grid-cols-3 2xl:grid-cols-4 gap-5">
+                <div className="flex">
                     {isLoading ? (
                         <SkeletonCard />
                     )
                         :
-                        (
-                            allClients.map((client, index) => {
-                                return (
-                                    <Card
-                                        key={client.id}
-                                        title="Cliente"
-                                        active={client.active!}
-                                        client={client}
-                                        index={index}
-                                        icon={User}
-                                        setOpenCreateDialog={setOpenCreateClientDialog}
-                                        setClientToBeEdited={setClientToBeEdited}
-                                    />
-                                )
-                            })
-                        )}
+                        (<ClientTable allClients={allClients} setClientToBeEdited={setClientToBeEdited} setOpenCreateClientDialog={setOpenCreateClientDialog} />)
+                    }
                 </div>
             </div>
         </div>

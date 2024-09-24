@@ -8,16 +8,8 @@ export namespace UpdateClientUseCase {
     export type Params = {
         id: string;
         name?: string;
-        type?: 'FISICA' | 'JURIDICA';
-        document?: string;
-        birthDate?: string;
-        address?: {
-            street?: string;
-            number?: string;
-            cep?: string;
-            neighborhood?: string;
-            city?: string;
-        };
+        email?: string;
+        phone?: string;
     }
 
     export type Response = Client | Error

@@ -1,12 +1,9 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { Pencil, Trash2, UserSearch, XIcon } from 'lucide-react';
 import { Button } from '@/app/components/Button';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Client } from '@/domain/entities/client';
-import { formatDate } from '@/utils/helpers/format-date';
 import { formatCreateDate } from '@/utils/helpers/format-create-date';
-import { useGetAddress } from '@/hooks/address/useGetAddress';
-import { Address } from '@/domain/entities/address';
 import { useDeleteClient } from '@/hooks/client/useDeleteClient';
 import { useQueryClient } from '@tanstack/react-query';
 import { toastMessage } from '@/utils/helpers/toast-message';
@@ -22,16 +19,10 @@ interface ClientDataDialogProps {
 export function ClientDataDialog({ client, setOpenCreateClientDialog, setClientToBeEdited }: ClientDataDialogProps) {
 
     const [openDialog, setOpenDialog] = useState(false)
-    const [address, setAddress] = useState<Address>()
 
-    const { data: addressData } = useGetAddress({ addressId: client.addressId })
 
     const { mutate: mutateDeleteClient, isError: isErrorDeleteClient, error: errorDeleteClient, isPending } = useDeleteClient()
     const queryCLient = useQueryClient()
-
-    function isNotErrorAddress(value: any): value is Address {
-        return !(value instanceof Error);
-    }
 
 
     function handleOpenCreateClientDialog() {
@@ -64,11 +55,6 @@ export function ClientDataDialog({ client, setOpenCreateClientDialog, setClientT
             })
     }
 
-    useEffect(() => {
-        if (addressData !== undefined && isNotErrorAddress(addressData)) {
-            setAddress(addressData);
-        }
-    }, [addressData]);
 
 
     return (
@@ -89,23 +75,10 @@ export function ClientDataDialog({ client, setOpenCreateClientDialog, setClientT
                     <div className='flex flex-col gap-3'>
                         <div className='mt-5 flex flex-col gap-8 divide-y divide-blue-500'>
                             <div className='flex flex-col gap-2'>
-                                <p className={`font-bold ${client.active ? 'text-blue-500' : 'text-red-500'}`}>{client.active ? 'Ativo' : 'Inativo'}</p>
                                 <p>Nome: {client.name}</p>
-                                <p>Pessoa: {client.type === 'FISICA' ? 'Física' : client.type === 'JURIDICA' ? 'Jurídica' : ''}</p>
-                                <p>{client.type === 'FISICA' ? 'CPF: ' : client.type === 'JURIDICA' ? 'CNPJ: ' : ''}{client.document}</p>
-                                <p>Data de nascimento: {formatDate(client.birthDate)}</p>
+                                <p>Email: {client.email}</p>
+                                <p>Telefone: {client.phone}</p>
                                 <p>Data de cadastro: {formatCreateDate(String(client.createdAt))}</p>
-                            </div>
-
-                            <div className='grid grid-cols-2'>
-                                <div className='col-span-2 lg:col-span-1 flex flex-col gap-2 py-8'>
-                                    <p>Endereço:</p>
-                                    <p>Rua: {address?.street}</p>
-                                    <p>CEP: {address?.cep}</p>
-                                    <p>Número: {address?.number}</p>
-                                    <p>Bairro: {address?.neighborhood}</p>
-                                    <p>Cidade: {address?.city}</p>
-                                </div>
                             </div>
                         </div>
                     </div>
