@@ -180,7 +180,7 @@ export function ClientTable({ setOpenCreateClientDialog, setClientToBeEdited }: 
                                 <TableCell>{client.name}</TableCell>
                                 <TableCell>{client.email}</TableCell>
                                 <TableCell>{client.phone}</TableCell>
-                                <TableCell>{client.phone}</TableCell>
+                                <TableCell>{client.image}</TableCell>
                                 <TableCell>{dayjs().to(client.createdAt)}</TableCell>
                                 <TableCell>
                                     <div className="flex flex-row items-end gap-x-2">

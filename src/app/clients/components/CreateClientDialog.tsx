@@ -10,8 +10,10 @@ import { useQueryClient } from '@tanstack/react-query';
 import { toastMessage } from '@/utils/helpers/toast-message';
 import { useUpdateClient } from '@/hooks/client/useUpdateClient';
 import { Client } from '@/domain/entities/client';
-import { useEffect } from 'react';
+import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import InputMask from 'react-input-mask'
+import { useUploadImage } from '@/hooks/client/useUploadImage';
+import { useGetImage } from '@/hooks/client/useGetImage';
 
 interface CreateClientDialogProps {
     openClientDialog: boolean
@@ -24,15 +26,20 @@ const createClientSchema = z.object({
     name: z.string().min(1, "Insira o nome"),
     email: z.string().min(1, "Insira o email").email("Insira um email válido"),
     phone: z.string().min(14, "Insira o telefone").max(18, 'O telefone deve ser válido'),
+    image: z.instanceof(FileList).refine(files => files.length > 0, {
+        message: "Insira uma imagem.",
+    }),
 })
 
 type createClientSchema = z.infer<typeof createClientSchema>
 
 export function CreateClientDialog({ openClientDialog, clientToBeEdited, setOpenCreateClientDialog, setClientToBeEdited }: CreateClientDialogProps) {
 
-
-
+    const [imageURL, setImageURL] = useState<string | null>(null);
+    const [imageFile, setImageFile] = useState<File | null>(null)
     const { mutate: mutateCreateClient, isPending: isPendingCreateClient } = useCreateClient()
+    const { mutate: mutateUploadImage } = useUploadImage()
+    const { mutate: mutateGetImage } = useGetImage()
     const { mutate: mutateUpdateClient, isPending: isPendingUpdateClient } = useUpdateClient()
 
     const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm<createClientSchema>({
@@ -46,35 +53,88 @@ export function CreateClientDialog({ openClientDialog, clientToBeEdited, setOpen
     })
     const queryCLient = useQueryClient()
 
+    useEffect(() => {
+        if (clientToBeEdited) {
+            mutateGetImage(
+                { id: clientToBeEdited.id },
+                {
+                    onSuccess: (data) => {
+
+                        const blob = new Blob([data], { type: 'image/png' });
+                        const imageObjectURL = URL.createObjectURL(blob);
+
+                        setImageURL(imageObjectURL);
+
+
+                    },
+                    onError: (error) => {
+                        console.error('Erro ao buscar a imagem:', error);
+                    }
+                }
+            );
+        }
+        return () => {
+            if (imageURL) {
+                URL.revokeObjectURL(imageURL);
+                setImageURL(null);
+            }
+        };
+    }, [clientToBeEdited]);
+
+
     async function createClient(data: createClientSchema) {
 
         try {
-            mutateCreateClient({
-                name: data.name,
-                email: data.email,
-                phone: data.phone
-            }, {
-                onSuccess: () => {
-                    queryCLient.invalidateQueries({
-                        queryKey: ['get-all-clients'],
-                        exact: false
-                    })
+            if (data.image && data.image instanceof FileList && data.image.length > 0) {
+                const firstFile = data.image[0];
+
+                if (!firstFile.name.toLowerCase().endsWith('.png') || firstFile.size > 100 * 1024 * 1024) {
                     toastMessage({
-                        message: 'Cliente criado com sucesso!',
-                        type: 'success'
-                    })
-                    reset()
-                    setOpenCreateClientDialog(false)
-                },
-                onError: (error) => {
-                    console.error(error)
-                    toastMessage({
-                        message: error.message,
+                        message: 'Arquivo inválido. Apenas arquivos .png com até 100MB são permitidos.',
                         type: 'error'
                     })
+                    return;
                 }
-            })
 
+                mutateCreateClient({
+                    name: data.name,
+                    email: data.email,
+                    phone: data.phone
+                }, {
+                    onSuccess: (data) => {
+                        const formData = new FormData();
+                        formData.append('file', firstFile);
+                        mutateUploadImage({
+                            id: data.id,
+                            formData: formData,
+                        }, {
+                            onSuccess: () => {
+                                queryCLient.invalidateQueries({
+                                    queryKey: ['get-all-clients'],
+                                    exact: false
+                                })
+                            }
+                        });
+                        queryCLient.invalidateQueries({
+                            queryKey: ['get-all-clients'],
+                            exact: false
+                        })
+                        toastMessage({
+                            message: 'Cliente criado com sucesso!',
+                            type: 'success'
+                        })
+                        reset()
+                        setOpenCreateClientDialog(false)
+                    },
+                    onError: (error) => {
+                        console.error(error)
+                        toastMessage({
+                            message: error.message,
+                            type: 'error'
+                        })
+                    }
+                })
+            }
         } catch (error: any) {
             return console.error(error.message)
         }
@@ -84,43 +144,76 @@ export function CreateClientDialog({ openClientDialog, clientToBeEdited, setOpen
     async function updateClient(data: createClientSchema) {
 
         try {
-            mutateUpdateClient({
-                id: clientToBeEdited ? clientToBeEdited.id : '',
-                name: data.name,
-                email: data.email,
-                phone: data.phone
-            }, {
-                onSuccess: () => {
-                    queryCLient.invalidateQueries({
-                        queryKey: ['get-all-clients'],
-                        exact: false
-                    })
-                    queryCLient.invalidateQueries({
-                        queryKey: ['get-address'],
-                        exact: false
-                    })
-                    toastMessage({
-                        message: 'Cliente atualizado com sucesso!',
-                        type: 'success'
-                    })
-                    reset()
-                    setOpenCreateClientDialog(false)
-                    setClientToBeEdited(null)
 
-                },
-                onError: (error) => {
-                    console.error(error)
+            if (data.image && data.image instanceof FileList && data.image.length > 0) {
+                const firstFile = data.image[0];
+
+                if (!firstFile.name.toLowerCase().endsWith('.png') || firstFile.size > 100 * 1024 * 1024) {
                     toastMessage({
-                        message: error.message,
+                        message: 'Arquivo inválido. Apenas arquivos .png com até 100MB são permitidos.',
                         type: 'error'
                     })
+                    return;
                 }
-            })
+                mutateUpdateClient({
+                    id: clientToBeEdited ? clientToBeEdited.id : '',
+                    name: data.name,
+                    email: data.email,
+                    phone: data.phone
+                }, {
+                    onSuccess: (data) => {
+                        const formData = new FormData();
+                        formData.append('file', firstFile);
+                        mutateUploadImage({
+                            id: data.id,
+                            formData: formData,
+                        }, {
+                            onSuccess: () => {
+                                queryCLient.invalidateQueries({
+                                    queryKey: ['get-all-clients'],
+                                    exact: false
+                                })
+                            }
+                        });
+                        queryCLient.invalidateQueries({
+                            queryKey: ['get-all-clients'],
+                            exact: false
+                        })
+                        toastMessage({
+                            message: 'Cliente atualizado com sucesso!',
+                            type: 'success'
+                        })
+                        reset()
+                        setOpenCreateClientDialog(false)
+                        setClientToBeEdited(null)
 
+                    },
+                    onError: (error) => {
+                        console.error(error)
+                        toastMessage({
+                            message: error.message,
+                            type: 'error'
+                        })
+                    }
+                })
+            }
         } catch (error: any) {
             return console.error(error.message)
         } finally {
         }
+    }
+
+
+    function handleFileSelected(event: ChangeEvent<HTMLInputElement>) {
+        const { files } = event.currentTarget
+
+        if (!files) {
+            return
+        }
+
+        const selectedFile = files[0]
+
+        setImageFile(selectedFile)
     }
 
     useEffect(() => {
@@ -128,9 +221,27 @@ export function CreateClientDialog({ openClientDialog, clientToBeEdited, setOpen
             setValue("name", clientToBeEdited.name)
             setValue("email", clientToBeEdited.email)
             setValue('phone', clientToBeEdited.phone)
+
         }
     }, [clientToBeEdited])
 
+
+
+    const previewURL = useMemo(() => {
+        if (!imageFile) {
+            return null
+        }
+
+        return URL.createObjectURL(imageFile)
+    }, [imageFile, openClientDialog])
+
+    // useEffect(() => {
+
+    //     if (previewURL) {
+    //         URL.revokeObjectURL(previewURL);
+    //     }
+
+    // }, [openClientDialog]);
 
     return (
         <Dialog.Root
@@ -193,6 +304,22 @@ export function CreateClientDialog({ openClientDialog, clientToBeEdited, setOpen
                                     />
                                 </InputRoot>
                                 <p className="text-xs text-red-500 font-semibold">{errors.phone?.message}</p>
+                            </div>
+                        </fieldset>
+
+
+                        <fieldset className="mb-[15px] flex flex-col justify-start items-start gap-2">
+                            <label className="text-sm" htmlFor="image">
+                                Imagem
+                            </label>
+                            <div className='flex flex-col justify-center items-start gap-1'>
+                                <InputRoot className='w-full'>
+                                    <InputControl id="image" type="file" placeholder='Imagem' {...register("image")} accept='.png' onChange={handleFileSelected} />
+                                </InputRoot>
+                                <p className="text-xs text-red-500 font-semibold">{errors.image?.message}</p>
+                                {imageURL && (
+                                    <img src={imageURL} className="w-2/3 h-2/3" />
+                                )}
                             </div>
                         </fieldset>
                     </div>
