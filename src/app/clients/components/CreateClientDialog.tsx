@@ -10,7 +10,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { toastMessage } from '@/utils/helpers/toast-message';
 import { useUpdateClient } from '@/hooks/client/useUpdateClient';
 import { Client } from '@/domain/entities/client';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import InputMask from 'react-input-mask'
 
 interface CreateClientDialogProps {
@@ -30,7 +30,7 @@ type createClientSchema = z.infer<typeof createClientSchema>
 
 export function CreateClientDialog({ openClientDialog, clientToBeEdited, setOpenCreateClientDialog, setClientToBeEdited }: CreateClientDialogProps) {
 
-    const [phoneValue, setPhoneValue] = useState('')
+
 
     const { mutate: mutateCreateClient, isPending: isPendingCreateClient } = useCreateClient()
     const { mutate: mutateUpdateClient, isPending: isPendingUpdateClient } = useUpdateClient()
@@ -124,8 +124,12 @@ export function CreateClientDialog({ openClientDialog, clientToBeEdited, setOpen
     }
 
     useEffect(() => {
-        setValue('phone', phoneValue)
-    }, [phoneValue])
+        if (clientToBeEdited) {
+            setValue("name", clientToBeEdited.name)
+            setValue("email", clientToBeEdited.email)
+            setValue('phone', clientToBeEdited.phone)
+        }
+    }, [clientToBeEdited])
 
 
     return (
@@ -137,7 +141,7 @@ export function CreateClientDialog({ openClientDialog, clientToBeEdited, setOpen
             </Dialog.Trigger>
             <Dialog.Portal>
                 <Dialog.Overlay className="backdrop-blur-sm fixed inset-0" />
-                <Dialog.Content className="overflow-y-scroll scrollbar-hide fixed top-[60%] lg:top-[50%] left-[50%] lg:left-[65%] xl:left-[55%] max-h-[60vh] lg:max-h-[80vh] w-11/12 lg:w-[70vw] max-w-[800px] translate-x-[-50%] translate-y-[-50%] rounded-[6px] bg-white dark:bg-zinc-700 p-[25px] shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] focus:outline-none">
+                <Dialog.Content className="overflow-y-scroll scrollbar-hide fixed top-[60%] lg:top-[50%] left-[50%] lg:left-[65%] xl:left-[55%] max-h-[60vh] lg:max-h-[80vh] w-[400px] translate-x-[-50%] translate-y-[-50%] rounded-[6px] bg-white dark:bg-zinc-800 p-[25px] shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] focus:outline-none">
                     <Dialog.Title className="text-lg font-medium">
                         Cadastro
                     </Dialog.Title>
@@ -145,9 +149,9 @@ export function CreateClientDialog({ openClientDialog, clientToBeEdited, setOpen
                         Insira os dados do cliente.
                     </Dialog.Description>
 
-                    <div className='flex flex-col lg:grid grid-cols-2 gap-3'>
+                    <div className='flex flex-col justify-center items-center gap-3'>
 
-                        <fieldset className="mb-[15px] flex flex-col lg:flex-row lg:justify-between items-center gap-10">
+                        <fieldset className="mb-[15px] flex flex-col justify-start items-start gap-2">
                             <label className="text-sm" htmlFor="name">
                                 Nome
                             </label>
@@ -160,7 +164,7 @@ export function CreateClientDialog({ openClientDialog, clientToBeEdited, setOpen
                         </fieldset>
 
 
-                        <fieldset className="mb-[15px] flex flex-col lg:flex-row lg:justify-between items-center gap-10">
+                        <fieldset className="mb-[15px] flex flex-col justify-start items-start gap-2">
                             <label className="text-sm" htmlFor="email">
                                 Email
                             </label>
@@ -172,7 +176,7 @@ export function CreateClientDialog({ openClientDialog, clientToBeEdited, setOpen
                             </div>
                         </fieldset>
 
-                        <fieldset className="mb-[15px] flex flex-col lg:flex-row lg:justify-between items-center gap-10">
+                        <fieldset className="mb-[15px] flex flex-col justify-start items-start gap-2">
                             <label className="text-sm" htmlFor="phone">
                                 Telefone
                             </label>
@@ -182,8 +186,9 @@ export function CreateClientDialog({ openClientDialog, clientToBeEdited, setOpen
                                         className='flex-1 border-0 bg-transparent p-0 text-zinc-900 placeholder-zinc-600 outline-none dark:placeholder-zinc-400 dark:text-zinc-100'
                                         mask="(99) 99999-9999"
                                         maskChar=""
-                                        value={phoneValue}
-                                        onChange={(e) => setPhoneValue(e.target.value)}
+
+                                        {...register("phone")}
+
                                         placeholder="(99) 99999-9999"
                                     />
                                 </InputRoot>

@@ -4,32 +4,29 @@ import { useGetAllClients } from "@/hooks/client/useGetAllClients";
 import { useEffect, useState } from "react";
 import { Client } from "@/domain/entities/client";
 import { CreateClientDialog } from "./components/CreateClientDialog";
-import { Card } from "../components/Card";
-import { SkeletonCard } from "../components/SkeletonCard";
-import { User } from "lucide-react";
 import { ClientTable } from "./components/ClientTable";
+import { SkeletonTable } from "../components/SkeletonTable";
 
 export default function Clients() {
 
-    const { data: clients, isLoading } = useGetAllClients()
-
-    const [allClients, setAllClients] = useState<Client[]>([])
     const [openClientDialog, setOpenCreateClientDialog] = useState(false)
     const [clientToBeEdited, setClientToBeEdited] = useState<Client | null>()
+    const [isLoading, setIsLoading] = useState(true);
 
 
     useEffect(() => {
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 1000);
 
-        if (clients !== undefined && Array.isArray(clients)) {
-            setAllClients(clients);
-        }
-    }, [clients]);
+        return () => clearTimeout(timer);
+    }, []);
 
     return (
         <div className="mt-6 flex flex-col px-6 gap-10">
             <h1 className="text-center lg:text-2xl">Verifique todos os clientes cadastrados</h1>
 
-            <div className="flex flex-col gap-10">
+            <div className="flex flex-col gap-5">
                 <div className="flex justify-end px-6">
                     <CreateClientDialog
                         openClientDialog={openClientDialog}
@@ -41,10 +38,10 @@ export default function Clients() {
 
                 <div className="flex">
                     {isLoading ? (
-                        <SkeletonCard />
+                        <SkeletonTable />
                     )
                         :
-                        (<ClientTable allClients={allClients} setClientToBeEdited={setClientToBeEdited} setOpenCreateClientDialog={setOpenCreateClientDialog} />)
+                        (<ClientTable setClientToBeEdited={setClientToBeEdited} setOpenCreateClientDialog={setOpenCreateClientDialog} />)
                     }
                 </div>
             </div>

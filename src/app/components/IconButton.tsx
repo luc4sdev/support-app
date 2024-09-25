@@ -12,7 +12,7 @@ export function IconButton({ transparent, isButtondisabled, ...rest }: IconButto
             {...rest}
             disabled={isButtondisabled}
             className={twMerge(
-                'border border-white/10 rounded-md p-1.5',
+                'border border-zinc-300 dark:border-white/10 rounded-md p-1.5',
                 transparent ? 'bg-black/20' : 'bg-white/10',
                 isButtondisabled ? 'opacity-50' : null
             )}

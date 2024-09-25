@@ -8,9 +8,9 @@ export class GetAllClientsService implements GetAllClientsUseCase {
         private readonly requestHelper: RequestHelperInterface = RequestHelper.instance
     ) { }
 
-    async perform(): Promise<GetAllClientsUseCase.Response> {
+    async perform(params: GetAllClientsUseCase.Params): Promise<GetAllClientsUseCase.Response> {
         const response = await this.requestHelper.make<GetAllClientsUseCase.Response>({
-            url: '/get-clients',
+            url: `/get-clients?pageIndex=${params.pageIndex}&query=${params.query}`,
             method: 'GET',
         })
         if ('error' in response) {

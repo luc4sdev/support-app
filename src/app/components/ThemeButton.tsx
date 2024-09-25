@@ -21,7 +21,7 @@ export function ThemeButton() {
             <DropdownMenu.Portal>
                 <DropdownMenu.Content sideOffset={5}>
 
-                    <DropdownMenu.RadioGroup className=" bg-zinc-50 dark:bg-zinc-800 flex flex-col justify-start gap-2 items-start border border-blue-300 shadow-sm rounded-lg px-3 py-3" value={theme} onValueChange={setTheme}>
+                    <DropdownMenu.RadioGroup className=" bg-zinc-50 dark:bg-zinc-800 flex flex-col justify-start gap-2 items-start border border-sky-300 shadow-sm rounded-lg px-3 py-3" value={theme} onValueChange={setTheme}>
                         <DropdownMenu.RadioItem className="flex items-center justify-start gap-2 font-medium outline-none cursor-pointer hover:text-yellow-500 dark:hover:text-yellow-300" value="light">
 
                             <Sun className="w-4 h-4" />
@@ -30,7 +30,7 @@ export function ThemeButton() {
                                 <Check className="w-3 h-3" />
                             </DropdownMenu.ItemIndicator>
                         </DropdownMenu.RadioItem>
-                        <DropdownMenu.RadioItem className="flex items-center justify-start gap-2 font-medium outline-none cursor-pointer hover:text-blue-600 dark:hover:text-blue-300" value="dark">
+                        <DropdownMenu.RadioItem className="flex items-center justify-start gap-2 font-medium outline-none cursor-pointer hover:text-sky-600 dark:hover:text-sky-300" value="dark">
 
                             <Moon className="w-4 h-4" />
                             Dark
@@ -39,7 +39,7 @@ export function ThemeButton() {
                             </DropdownMenu.ItemIndicator>
                         </DropdownMenu.RadioItem>
 
-                        <DropdownMenu.RadioItem className="flex items-center justify-start gap-2 font-medium outline-none cursor-pointer hover:text-blue-600 dark:hover:text-blue-300" value="system">
+                        <DropdownMenu.RadioItem className="flex items-center justify-start gap-2 font-medium outline-none cursor-pointer hover:text-sky-600 dark:hover:text-sky-300" value="system">
 
                             <Monitor className="w-4 h-4" />
                             System

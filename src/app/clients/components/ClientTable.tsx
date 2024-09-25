@@ -13,20 +13,20 @@ import { Button } from '@/app/components/Button'
 import { useQueryClient } from '@tanstack/react-query'
 import { useDeleteClient } from '@/hooks/client/useDeleteClient'
 import { toastMessage } from '@/utils/helpers/toast-message'
+import { useGetAllClients } from '@/hooks/client/useGetAllClients'
 
 dayjs.extend(relativeTime)
 dayjs.locale('pt-br')
 
-
 interface ClientTableProps {
-    allClients: Client[];
     setOpenCreateClientDialog: (openDialog: boolean) => void
     setClientToBeEdited: (client: Client | null) => void
 }
-export function ClientTable({ allClients, setOpenCreateClientDialog, setClientToBeEdited }: ClientTableProps) {
+
+export function ClientTable({ setOpenCreateClientDialog, setClientToBeEdited }: ClientTableProps) {
 
 
-    const { mutate: mutateDeleteClient, isError: isErrorDeleteClient, error: errorDeleteClient, isPending } = useDeleteClient()
+    const { mutate: mutateDeleteClient, isError: isErrorDeleteClient, error: errorDeleteClient } = useDeleteClient()
     const queryCLient = useQueryClient()
 
     const [search, setSearch] = useState(() => {
@@ -48,21 +48,34 @@ export function ClientTable({ allClients, setOpenCreateClientDialog, setClientTo
 
         return 1
     })
+    const [searchParams, setSearchParams] = useState({ pageIndex: String(page - 1), query: search });
 
-    const [total, setTotal] = useState(0)
-    const [clients, setClients] = useState<Client[]>([])
+    const { data: clients } = useGetAllClients(searchParams);
+
 
     useEffect(() => {
-        setClients(allClients)
-    }, [allClients])
+        setSearchParams({
+            pageIndex: String(page - 1),
+            query: search,
+        });
+    }, [page, search]);
+
+    const [total, setTotal] = useState(0)
+    const [allClients, setAllClients] = useState<Client[]>([])
 
 
+    useEffect(() => {
+
+        if (!(clients instanceof Error) && clients !== undefined && Array.isArray(clients.data)) {
+            setAllClients(clients.data);
+            setTotal(clients.total)
+        }
+    }, [clients]);
 
     function handleOpenEditClientDialog(client: Client) {
         setOpenCreateClientDialog(true)
         setClientToBeEdited(client)
     }
-
 
     async function deleteClient(id: string) {
         mutateDeleteClient({
@@ -88,7 +101,6 @@ export function ClientTable({ allClients, setOpenCreateClientDialog, setClientTo
     }
 
     const totalPages = Math.ceil(total / 10)
-
 
     function setCurrentSearch(search: string) {
         const url = new URL(window.location.toString())
@@ -120,7 +132,6 @@ export function ClientTable({ allClients, setOpenCreateClientDialog, setClientTo
     }
 
     function goToNextPage() {
-
         setCurrentPage(page + 1)
     }
 
@@ -130,53 +141,51 @@ export function ClientTable({ allClients, setOpenCreateClientDialog, setClientTo
 
     function goToLastPage() {
         setCurrentPage(totalPages)
-
     }
 
     return (
         <div className='w-full flex flex-col gap-4'>
             <div className="flex gap-3 items-center">
 
-                <div className="px-3 w-72 py-1.5 border border-white/10 rounded-lg flex items-center gap-3">
-                    <Search className='size-4 text-blue-300' />
+                <div className="px-3 w-72 py-1.5 border border-zinc-300 dark:border-white/10 rounded-lg flex items-center gap-3">
+                    <Search className='size-4 text-sky-300' />
                     <input onChange={onSearchInputChandged} value={search} className="bg-transparent flex-1 outline-none border-0 p-0 text-sm focus:ring-0 focus:ring-offset-0" placeholder="Buscar cliente..." />
                 </div>
             </div>
 
             <Table>
-
                 <thead>
-                    <tr className='border-b border-white/10'>
+                    <tr className='border-b border-zinc-300/50 dark:border-white/10'>
                         <TableHeader style={{ width: 48 }} className='py-3 px-4 text-sm font-semibold text-left'>
-                            <input className='size-4 bg-black/20 rounded border border-white/10 focus:ring-0 focus:ring-offset-0 checked:text-orange-400' type="checkbox" />
+                            <input className='size-4 bg-black/20 rounded border border-white/10 focus:ring-0 focus:ring-offset-0' type="checkbox" />
                         </TableHeader>
 
                         <TableHeader>Nome</TableHeader>
                         <TableHeader>Email</TableHeader>
                         <TableHeader>Telefone</TableHeader>
                         <TableHeader>Imagem</TableHeader>
+                        <TableHeader>Data de criação</TableHeader>
                         <TableHeader>Ações</TableHeader>
-                        <TableHeader style={{ width: 64 }} ></TableHeader>
                     </tr>
                 </thead>
 
                 <tbody>
-                    {clients.map((client) => {
+                    {allClients.map((client) => {
                         return (
                             <TableRow key={client.id} className='border-b border-white/10 hover:bg-white/5'>
                                 <TableCell>
-                                    <input className='size-4 bg-black/20 rounded border border-white/10 focus:ring-0 focus:ring-offset-0 checked:text-orange-400' type="checkbox" />
+                                    <input className='size-4 bg-zinc-500 dark:bg-black/20 rounded border border-zinc-700 dark:border-white/10 focus:ring-0 focus:ring-offset-0 checked:text-orange-400' type="checkbox" />
                                 </TableCell>
 
                                 <TableCell>{client.name}</TableCell>
-
                                 <TableCell>{client.email}</TableCell>
                                 <TableCell>{client.phone}</TableCell>
                                 <TableCell>{client.phone}</TableCell>
+                                <TableCell>{dayjs().to(client.createdAt)}</TableCell>
                                 <TableCell>
                                     <div className="flex flex-row items-end gap-x-2">
-                                        asdsd
                                         <Button
+                                            title='Editar'
                                             variant="primary"
                                             onClick={() => {
                                                 handleOpenEditClientDialog(client)
@@ -186,7 +195,8 @@ export function ClientTable({ allClients, setOpenCreateClientDialog, setClientTo
                                             <Pen className="h-4 w-4 group-hover:text-zinc-100 dark:text-zinc-200" />
                                         </Button>
                                         <Button
-                                            variant="primary"
+                                            title='Deletar'
+                                            variant="danger"
                                             onClick={() => { deleteClient(client.id) }}
                                             className="px-2 py-2"
                                         >
@@ -194,24 +204,15 @@ export function ClientTable({ allClients, setOpenCreateClientDialog, setClientTo
                                         </Button>
                                     </div>
                                 </TableCell>
-
-                                <TableCell>{dayjs().to(client.createdAt)}</TableCell>
-
-                                <TableCell>
-                                    <IconButton transparent>
-                                        <MoreHorizontal className='size-4' />
-                                    </IconButton>
-                                </TableCell>
                             </TableRow>
                         )
                     })}
                 </tbody>
 
-
                 <tfoot>
                     <tr>
                         <TableCell colSpan={3}>
-                            Mostrando {clients.length} de {total} itens
+                            Mostrando {allClients.length} de {total} itens
                         </TableCell>
                         <TableCell className='text-right' colSpan={3}>
                             <div className='inline-flex items-center gap-8'>
@@ -238,9 +239,8 @@ export function ClientTable({ allClients, setOpenCreateClientDialog, setClientTo
                         </TableCell>
                     </tr>
                 </tfoot>
-
-
             </Table>
+
         </div>
     )
 }
