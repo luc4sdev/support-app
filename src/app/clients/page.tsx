@@ -24,8 +24,6 @@ export default function Clients() {
 
     return (
         <div className="mt-6 flex flex-col px-6 gap-10">
-            <h1 className="text-center lg:text-2xl">Verifique todos os clientes cadastrados</h1>
-
             <div className="flex flex-col gap-5">
                 <div className="flex justify-end px-6">
                     <CreateClientDialog
