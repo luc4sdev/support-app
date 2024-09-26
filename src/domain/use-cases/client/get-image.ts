@@ -8,5 +8,5 @@ export namespace GetImageUsecase {
         id: string;
     }
 
-    export type Response = Buffer | Error
+    export type Response = string | Error
 }

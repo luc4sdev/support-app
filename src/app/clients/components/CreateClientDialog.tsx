@@ -61,16 +61,7 @@ export function CreateClientDialog({ openClientDialog, clientToBeEdited, setOpen
                 { id: clientToBeEdited.id },
                 {
                     onSuccess: (data) => {
-
-                        const blob = new Blob([data], { type: 'image/png' });
-                        const imageObjectURL = URL.createObjectURL(blob);
-
-                        setImageURL(imageObjectURL);
-
-
-                    },
-                    onError: (error) => {
-                        console.error('Erro ao buscar a imagem:', error);
+                        setImageURL(data);
                     }
                 }
             );
@@ -237,13 +228,13 @@ export function CreateClientDialog({ openClientDialog, clientToBeEdited, setOpen
         return URL.createObjectURL(imageFile)
     }, [imageFile, openClientDialog])
 
-    // useEffect(() => {
+    useEffect(() => {
 
-    //     if (previewURL) {
-    //         URL.revokeObjectURL(previewURL);
-    //     }
+        if (previewURL) {
+            URL.revokeObjectURL(previewURL);
+        }
 
-    // }, [openClientDialog]);
+    }, [openClientDialog]);
 
     return (
         <Dialog.Root
@@ -319,9 +310,13 @@ export function CreateClientDialog({ openClientDialog, clientToBeEdited, setOpen
                                     <InputControl id="image" type="file" placeholder='Imagem' {...register("image")} accept='.png' onChange={handleFileSelected} />
                                 </InputRoot>
                                 <p className="text-xs text-red-500 font-semibold">{errors.image?.message}</p>
-                                {imageURL && (
+                                {(clientToBeEdited && imageURL) ? (
                                     <img src={imageURL} className="w-2/3 h-2/3" />
-                                )}
+                                ) :
+                                    (!clientToBeEdited && previewURL) && (
+                                        <img src={previewURL} className="w-2/3 h-2/3" />
+
+                                    )}
                             </div>
                         </fieldset>
                     </div>
