@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { ToastContainer } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css'
+
 import { Sidebar } from "../components/Sidebar";
 import { Header } from "../components/Header";
 
@@ -25,7 +24,7 @@ export default function RootLayout({
                     {children}
                 </main>
             </div>
-            <ToastContainer stacked />
+
         </div>
     );
 }

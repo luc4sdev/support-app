@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { LoaderCircle, UserRoundCog } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { twMerge } from "tailwind-merge";
+import { toastMessage } from "@/utils/helpers/toast-message";
 
 
 
@@ -27,7 +28,7 @@ export default function Signin() {
         resolver: zodResolver(signInSchema)
     })
 
-    const { signIn, isLoading, invalidLogin } = useAuth();
+    const { signIn, isLoading } = useAuth();
     async function signInUser(data: signInSchema) {
 
         const { email, password } = data
@@ -59,6 +60,7 @@ export default function Signin() {
                     )}>
                         <InputControl id="email" type="email" placeholder='johndoe@email.com' {...register("email")} />
                     </InputRoot>
+                    <p className="text-sm text-red-500 font-semibold">{errors.email?.message}</p>
                 </div>
 
                 <div className="flex flex-col gap-3 py-3 md:w-1/2">

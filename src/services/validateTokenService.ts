@@ -11,7 +11,7 @@ export class ValidateTokenService implements ValidateTokenUsecase {
 
     async perform(): Promise<ValidateTokenUsecase.Response> {
         const token = getCookie('token');
-        console.log(token)
+
         const response = await this.requestHelper.make<ValidateTokenUsecase.Response>({
             url: '/validate-token',
             method: 'POST',

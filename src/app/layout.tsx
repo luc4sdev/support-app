@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "@/providers/Providers";
 import 'react-toastify/dist/ReactToastify.css'
 import { ThemeProvider } from "next-themes";
+import { ToastContainer } from "react-toastify";
 
 const inter = Poppins({ subsets: ["latin"], weight: ["300", "400", "500", "600", "700"] });
 
@@ -26,7 +27,9 @@ export default function RootLayout({
         <Providers>
           <ThemeProvider attribute="class">
             {children}
+
           </ThemeProvider>
+          <ToastContainer stacked />
         </Providers>
       </body>
 

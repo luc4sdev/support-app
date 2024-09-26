@@ -11,7 +11,7 @@ export function SkeletonTable() {
                     <tr className='border-b border-zinc-300/50 dark:border-white/10'>
                         {[...Array(7)].map((_, index) => (
                             <TableHeader key={index}>
-                                <div className="h-4 bg-zinc-300/50 dark:bg-white/10 rounded w-full animate-pulse"></div>
+                                <div className="h-7 bg-zinc-300/50 dark:bg-white/10 rounded w-full animate-pulse"></div>
                             </TableHeader>
                         ))}
                     </tr>
@@ -21,7 +21,7 @@ export function SkeletonTable() {
                         <TableRow key={index} className='border-b border-white/10'>
                             {[...Array(7)].map((_, cellIndex) => (
                                 <TableCell key={cellIndex}>
-                                    <div className="h-4 bg-zinc-300/50 dark:bg-white/10 rounded w-full animate-pulse"></div>
+                                    <div className="h-10 bg-zinc-300/50 dark:bg-white/10 rounded w-full animate-pulse"></div>
                                 </TableCell>
                             ))}
                         </TableRow>

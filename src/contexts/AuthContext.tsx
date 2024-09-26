@@ -61,7 +61,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                         })
                     }
                 },
-                onError: () => {
+                onError: (error) => {
+                    console.log(error)
                     toastMessage({ message: 'Email ou senha inválidos', type: 'error' })
                 }
             })
@@ -79,6 +80,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             mutateLogout({}, {
                 onSuccess: () => {
                     localStorage.clear();
+                    Cookies.remove('token', { path: '/' });
+                    router.push('/signin')
                 },
                 onError: (error) => {
                     toast.error(`Failed to logout: ${error}`);
