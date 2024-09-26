@@ -1,3 +1,5 @@
+'use client'
+
 import * as Dialog from '@radix-ui/react-dialog';
 import { XIcon } from 'lucide-react';
 import { Button } from '@/app/components/Button';
@@ -26,7 +28,7 @@ const createClientSchema = z.object({
     name: z.string().min(1, "Insira o nome"),
     email: z.string().min(1, "Insira o email").email("Insira um email válido"),
     phone: z.string().min(14, "Insira o telefone").max(18, 'O telefone deve ser válido'),
-    image: z.instanceof(FileList).refine(files => files.length > 0, {
+    image: z.custom<FileList>(files => files instanceof FileList && files.length > 0, {
         message: "Insira uma imagem.",
     }),
 })
