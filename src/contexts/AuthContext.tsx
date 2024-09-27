@@ -18,7 +18,6 @@ interface AuthContextProps {
     signOut: () => void;
     isAuthenticated: boolean;
     isLoading: boolean;
-    invalidLogin: boolean;
 }
 
 const AuthContext = createContext({} as AuthContextProps);
@@ -26,7 +25,6 @@ const AuthContext = createContext({} as AuthContextProps);
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<UserAuth | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [invalidLogin, setInvalidLogin] = useState(false);
     const router = useRouter()
     const { mutate: mutateAuthenticate } = useAuthenticate()
     const { mutate: mutateValidateToken } = useValidateToken()
@@ -114,7 +112,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, []);
 
     return (
-        <AuthContext.Provider value={{ user, signIn, signOut, isAuthenticated: !!user, isLoading, invalidLogin }}>
+        <AuthContext.Provider value={{ user, signIn, signOut, isAuthenticated: !!user, isLoading }}>
             {children}
         </AuthContext.Provider>
     );
