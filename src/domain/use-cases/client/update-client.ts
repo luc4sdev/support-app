@@ -9,7 +9,7 @@ export namespace UpdateClientUseCase {
         id: string;
         name?: string;
         email?: string;
-        phone?: string;
+        phone?: string | null;
     }
 
     export type Response = Client | Error

@@ -8,7 +8,7 @@ export namespace CreateClientUsecase {
     export type Params = {
         name: string;
         email: string;
-        phone: string;
+        phone: string | null;
     }
 
     export type Response = Client | Error

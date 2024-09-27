@@ -27,10 +27,15 @@ interface CreateClientDialogProps {
 const createClientSchema = z.object({
     name: z.string().min(1, "Insira o nome"),
     email: z.string().min(1, "Insira o email").email("Insira um email válido"),
-    phone: z.string().min(14, "Insira o telefone").max(18, 'O telefone deve ser válido'),
+    phone: z.string()
+        .min(14, "Insira o telefone")
+        .max(18, "O telefone deve ser válido")
+        .nullable()
+        .default(null)
+        .optional(),
     image: z.custom<FileList>(files => files instanceof FileList && files.length > 0, {
         message: "Insira uma imagem.",
-    }),
+    }).nullable().default(null).optional(),
 })
 
 type createClientSchema = z.infer<typeof createClientSchema>
@@ -92,7 +97,7 @@ export function CreateClientDialog({ openClientDialog, clientToBeEdited, setOpen
                 mutateCreateClient({
                     name: data.name,
                     email: data.email,
-                    phone: data.phone
+                    phone: data.phone || null
                 }, {
                     onSuccess: (data) => {
                         const formData = new FormData();
@@ -290,9 +295,7 @@ export function CreateClientDialog({ openClientDialog, clientToBeEdited, setOpen
                                         className='flex-1 border-0 bg-transparent p-0 text-zinc-900 placeholder-zinc-600 outline-none dark:placeholder-zinc-400 dark:text-zinc-100'
                                         mask="(99) 99999-9999"
                                         maskChar=""
-
                                         {...register("phone")}
-
                                         placeholder="(99) 99999-9999"
                                     />
                                 </InputRoot>
