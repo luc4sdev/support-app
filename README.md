@@ -1,6 +1,6 @@
-## 💻 Routers App 
+## 💻 Support App 
 
-O projeto consiste em um front-end de uma aplicação de gerenciamento de clientes e roteadores. 
+O projeto consiste em um front-end de uma aplicação de suporte e gerenciamento de clientes. 
 
 Foi desenvolvido com Typescript, ReactJS, NextJS. 
 
@@ -18,11 +18,13 @@ Foi realizado o deploy do projeto na plataforma Vercel.
 
 ## 🚀 Link do deploy do projeto (clique para entrar)
 
-<a href="https://routers-app-eta.vercel.app/clients" target="_blank" rel="external">
+<h2>OBS: email: admin@email.com / senha: admin123</h2>
+
+<a href="https://support-app-neon.vercel.app" target="_blank" rel="external">
 <img src="public/project-image.png" height="350" width="750" alt="Imagem do Projeto">
 </a>
 
-<h2>Link: <a href="https://routers-app-eta.vercel.app/clients" target="_blank" rel="external">Projeto</a></h2>
+<h2>Link: <a href="https://support-app-neon.vercel.app" target="_blank" rel="external">Projeto</a></h2>
 
 <br/>
 <br/>
